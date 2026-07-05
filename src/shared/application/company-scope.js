@@ -17,7 +17,24 @@ export const DEFAULT_COMPANY_ID = 1;
  */
 export const getActiveCompanyId = () => {
     const value = getStoredAuthUser()?.companyId;
-    return value === undefined || value === null ? null : Number(value);
+    if (value === undefined || value === null) return null;
+
+    const companyId = Number(value);
+    return Number.isFinite(companyId) ? companyId : null;
+};
+
+/**
+ * Resolves the authenticated company identifier required by tenant-scoped APIs.
+ *
+ * @returns {number} Current user's company id.
+ * @throws {Error} When a protected endpoint is requested before IAM session hydration.
+ */
+export const requireActiveCompanyId = () => {
+    const companyId = getActiveCompanyId();
+    if (companyId === null) {
+        throw new Error('Authenticated company context is required before calling company-scoped endpoints.');
+    }
+    return companyId;
 };
 
 /**

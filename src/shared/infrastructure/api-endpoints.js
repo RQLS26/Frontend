@@ -14,7 +14,7 @@
  * @author RQLS TEAM
  */
 
-import { DEFAULT_COMPANY_ID, getActiveCompanyId } from '../application/company-scope.js';
+import { requireActiveCompanyId } from '../application/company-scope.js';
 
 const productionApiBaseUrl = 'https://buildline-platform.up.railway.app/';
 const legacyMockApiHosts = ['buildline-json-server.onrender.com'];
@@ -61,12 +61,12 @@ export const platformApiBaseUrl = normalizeApiBaseUrl(import.meta.env.VITE_API_B
  * @param {string} resource - Company-owned backend resource segment.
  * @returns {string} Versioned route scoped to the active company.
  * @description
- * The backend owns tenancy through `/api/v1/companies/{companyId}/...`. The default
- * company id is used only before authentication finishes, matching the seeded Buildline
- * demo account and preventing adapters from falling back to unscoped endpoints.
+ * The backend owns tenancy through `/api/v1/companies/{companyId}/...`. The company id
+ * must come from the authenticated IAM session so protected adapters never invent a
+ * fallback tenant before session hydration finishes.
  */
 const companyEndpoint = (resource) => {
-    const companyId = getActiveCompanyId() ?? DEFAULT_COMPANY_ID;
+    const companyId = requireActiveCompanyId();
     return `api/v1/companies/${companyId}/${resource}`;
 };
 
